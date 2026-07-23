@@ -1367,11 +1367,11 @@ def get_analyzer():
     is called is extremely inefficient.
     """
 
+
     global _analyzer
     if _analyzer is None:
-        # In get_analyzer() function:
         _analyzer = ArabicBERTSentimentAnalyzer(
-            model_name="raaagh/newModel"  # Change back to HF model
+            model_name="raaagh/newModel"
         )
     return _analyzer
 
