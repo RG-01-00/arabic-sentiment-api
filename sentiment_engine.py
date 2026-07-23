@@ -42,18 +42,24 @@ class ArabicBERTSentimentAnalyzer:
         # ============================================================
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
+        self.device = torch.device("cpu")
+
         self.model = AutoModelForSequenceClassification.from_pretrained(
             model_name
         )
 
+        self.model.to(self.device)
+
         self.model.eval()
 
-        # Automatically use GPU if available
-        self.device = torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu"
+        # Reduce RAM usage with dynamic INT8 quantization
+        self.model = torch.quantization.quantize_dynamic(
+            self.model,
+            {torch.nn.Linear},
+            dtype=torch.qint8
         )
 
-        self.model.to(self.device)
+        self.model.eval()
 
         # ============================================================
         # LABEL MAPPING
