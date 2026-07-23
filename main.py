@@ -43,10 +43,21 @@ class AnalyzeRequest(BaseModel):
 
 @app.get("/")
 def root():
-
     return {
         "status": "online",
         "message": "Arabic Sentiment Analysis API is running",
+    }
+
+
+# ============================================================
+# HEALTH CHECK
+# ============================================================
+
+@app.get("/health")
+def health():
+    return {
+        "status": "healthy",
+        "message": "API is running",
     }
 
 
