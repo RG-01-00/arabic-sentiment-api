@@ -50,14 +50,14 @@ def root():
 
 
 # ============================================================
-# HEALTH CHECK
+# HEALTH
 # ============================================================
 
 @app.get("/health")
 def health():
     return {
         "status": "healthy",
-        "message": "API is running",
+        "message": "Arabic Sentiment Analysis API is running",
     }
 
 
