@@ -2,23 +2,20 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install Python packages
+# Install Python packages separately
 RUN pip install --no-cache-dir \
     fastapi \
     uvicorn \
     transformers \
-    torch --index-url https://download.pytorch.org/whl/cpu \
     scikit-learn \
     pydantic
 
-# Copy application
+# Install torch from CPU-only index
+RUN pip install --no-cache-dir \
+    torch \
+    --index-url https://download.pytorch.org/whl/cpu
+
 COPY main.py .
 COPY sentiment_engine.py .
 
-# Run
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860"]
+CMD uvicorn main:app --host 0.0.0.0 --port $PORT
