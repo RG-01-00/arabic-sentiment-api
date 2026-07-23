@@ -2,26 +2,18 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+from contextlib import asynccontextmanager
+
 from sentiment_engine import (
     analyze_arabic_sentiment,
     get_analyzer
 )
-
-
-# ============================================================
-# APP
-# ============================================================
 
 app = FastAPI(
     title="Arabic Sentiment Analysis API",
     description="Arabic NLP sentiment analysis engine",
     version="1.0.0",
 )
-
-
-# ============================================================
-# CORS
-# ============================================================
 
 app.add_middleware(
     CORSMiddleware,
@@ -32,20 +24,36 @@ app.add_middleware(
 )
 
 
-# ============================================================
-# REQUEST MODEL
-# ============================================================
-
 class AnalyzeRequest(BaseModel):
     text: str
 
 
-# ============================================================
-# STARTUP - LOAD MODEL
-# ============================================================
+@app.get("/")
+def root():
+    return {
+        "status": "online",
+        "message": "Arabic Sentiment Analysis API is running",
+    }
 
-@app.on_event("startup")
-def load_model():
+
+@app.get("/health")
+def health():
+    return {
+        "status": "healthy",
+        "message": "Arabic Sentiment Analysis API is running",
+    }
+
+
+@app.post("/analyze")
+def analyze(request: AnalyzeRequest):
+
+    result = analyze_arabic_sentiment(request.text)
+
+    return result
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
 
     print("Loading Arabic BERT model...")
 
@@ -53,36 +61,15 @@ def load_model():
 
     print("Arabic BERT model loaded successfully!")
 
-
-# ============================================================
-# ROOT
-# ============================================================
-
-@app.get("/")
-def root():
-
-    return {
-        "status": "online",
-        "message": "Arabic Sentiment Analysis API is running",
-    }
+    yield
 
 
-# ============================================================
-# HEALTH
-# ============================================================
-
-@app.get("/health")
-def health():
-
-    return {
-        "status": "healthy",
-        "message": "Arabic Sentiment Analysis API is running",
-    }
-
-
-# ============================================================
-# READY
-# ============================================================
+app = FastAPI(
+    title="Arabic Sentiment Analysis API",
+    description="Arabic NLP sentiment analysis engine",
+    version="1.0.0",
+    lifespan=lifespan
+)
 
 @app.get("/ready")
 def ready():
@@ -91,19 +78,5 @@ def ready():
 
     return {
         "status": "ready",
-        "message": "Arabic BERT model is loaded",
+        "message": "Arabic BERT model is loaded"
     }
-
-
-# ============================================================
-# ANALYZE
-# ============================================================
-
-@app.post("/analyze")
-def analyze(request: AnalyzeRequest):
-
-    result = analyze_arabic_sentiment(
-        request.text
-    )
-
-    return result
