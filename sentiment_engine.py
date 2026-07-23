@@ -20,6 +20,7 @@ from transformers import (
 
 import torch
 import re
+import os
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -1371,8 +1372,11 @@ def get_analyzer():
     global _analyzer
     if _analyzer is None:
         _analyzer = ArabicBERTSentimentAnalyzer(
-            model_name="raaagh/newModel"
-        )
+            model_name=os.getenv(
+                "MODEL_NAME",
+                "raaagh/newModel"
+            )
+)
     return _analyzer
 
 # ====================================================================
